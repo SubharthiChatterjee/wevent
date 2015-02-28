@@ -176,9 +176,15 @@
 					<artifactId>heroku-maven-plugin</artifactId>
 					<version>0.3.3</version>
 					<configuration>
-					<appName>wooplr</appName>
+						<appName>wooplr</appName>
+					</configuration>
+					<configuration>
+					  <appName>wooplr</appName>
+					  <processTypes>
+						 <web>java $JAVA_OPTS -cp target/classes:target/dependency/* Main</web>
+					  </processTypes>
+					</configuration>
 				</plugin>
-              </configuration>
 			</plugins>
 		</pluginManagement>
 	</build>
