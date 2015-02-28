@@ -1,0 +1,5 @@
+*.class
+*.war
+*.jar
+*.lst
+w-event/target/
