@@ -171,6 +171,14 @@
 						<target>1.7</target>
 					</configuration>
 				</plugin>
+				<plugin>
+					<groupId>com.heroku.sdk</groupId>
+					<artifactId>heroku-maven-plugin</artifactId>
+					<version>0.3.3</version>
+					<configuration>
+					<appName>wooplr</appName>
+				</plugin>
+              </configuration>
 			</plugins>
 		</pluginManagement>
 	</build>
