@@ -1,9 +1,0 @@
-{
-  "name": "wevent",
-  "version": "1.0.0",
-  "description": "Event Management",
-  "repository": "",
-  "dependencies": {
-    "wevent": "~1.0.0"
-  }
-}
