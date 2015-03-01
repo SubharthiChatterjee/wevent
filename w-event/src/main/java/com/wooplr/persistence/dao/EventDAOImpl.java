@@ -111,11 +111,10 @@ public class EventDAOImpl extends AbstractMongoDAO<Event, String> implements Eve
 			Integer eventCount = returnMap.get(eventType);
 
 			if (eventCount == null) {
-				returnMap.put(eventType, eventCount);
+				returnMap.put(eventType, 1);
 				continue;
 			}
-			eventCount++;
-			returnMap.put(eventType, eventCount);
+			returnMap.put(eventType, ++eventCount);
 		}
 		return returnMap;
 	}
@@ -127,17 +126,20 @@ public class EventDAOImpl extends AbstractMongoDAO<Event, String> implements Eve
 	 * java.util.Date)
 	 */
 	@Override
-	public List<Event> getEvent(String lastEventId, int limit, Date greaterThanDate) throws MongoException {
-		DBObject dbQuery = new BasicDBObject();
-		if ((lastEventId != null) && (lastEventId.trim().length() > 0)) {
-			dbQuery.put(ID, new BasicDBObject("$gt", lastEventId));
-		}
-		dbQuery.put(CREATE_DATE, new BasicDBObject("$gt", greaterThanDate));
-		DBCursor cursor = getDB().getCollection(COLLECTION_NAME).find(dbQuery).limit(limit);
-		List<Event> events = new ArrayList<>();
+	public Map<Integer, Integer> getTopEvents(Date greaterThanDate) throws MongoException {
+		DBObject queryObj = new BasicDBObject(CREATE_DATE, new BasicDBObject("$gt", greaterThanDate));
+		DBObject projObj = new BasicDBObject(TYPE, 1);
 
+		DBCursor cursor = getDB().getCollection(COLLECTION_NAME).find(queryObj, projObj);
+		Map<Integer, Integer> events = new HashMap<Integer, Integer>();
 		for (DBObject object : cursor) {
-			events.add(map(object));
+			int type = (Integer) object.get(TYPE);
+			Integer typeCount = events.get(type);
+			if (typeCount == null) {
+				events.put(type, 1);
+				continue;
+			}
+			events.put(type, ++typeCount);
 		}
 		return events;
 	}

@@ -8,8 +8,9 @@
 package com.wooplr.web;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -68,8 +69,6 @@ public class BaseController {
 		String lastEventId = null;
 		int limit = 0;
 		if ((request != null) && (request.getParameter("sEcho") != null) && (request.getParameter("sEcho") != "")) {
-			Integer.parseInt(request.getParameter("iDisplayStart"));
-			Integer.parseInt(request.getParameter("iSortCol_0"));
 			limit = Integer.parseInt(request.getParameter("iDisplayLength"));
 			lastEventId = request.getParameter("lastEventId");
 		}
@@ -97,26 +96,24 @@ public class BaseController {
 	@RequestMapping("/getTopEvents.htm")
 	public @ResponseBody
 	Response getTopEvents(HttpServletRequest request, HttpServletResponse httpResponse) {
-		String lastEventId = null;
-		int limit = 0;
 		long timeIntervalInMillis = 0;
 		if ((request != null) && (request.getParameter("sEcho") != null) && (request.getParameter("sEcho") != "")) {
-			Integer.parseInt(request.getParameter("iDisplayStart"));
-			Integer.parseInt(request.getParameter("iSortCol_0"));
-			limit = Integer.parseInt(request.getParameter("iDisplayLength"));
-			lastEventId = request.getParameter("lastEventId");
 			int timeInterval = Integer.parseInt(request.getParameter("timeInterval"));
 			timeIntervalInMillis = timeInterval * 60 * 60 * 1000;
 		}
 
 		Response response = new Response();
 		try {
-			ArrayList<Event> eventList = (ArrayList<Event>) eventService.getTopEvents(lastEventId, limit,
-					timeIntervalInMillis);
+			List<Entry<Integer, Integer>> topEventEntryList = eventService.getTopEvents(timeIntervalInMillis);
+			ArrayList<EventCount> eventList = new ArrayList<EventCount>();
+
+			for (Map.Entry<Integer, Integer> topEventMapEntry : topEventEntryList) {
+				EventCount eventCount = new EventCount();
+				eventCount.setType(topEventMapEntry.getKey());
+				eventList.add(eventCount);
+			}
 			response.setEventList(eventList);
 			response.setCode(Response.SUCCESS);
-			Event event = eventList.get(eventList.size() - 1);
-			response.setLastEventId(event.getId());
 		} catch (Exception e) {
 			logger.error("error occured in addEvent", e);
 			response.setCode(Response.FAILURE);
@@ -126,16 +123,32 @@ public class BaseController {
 		return response;
 	}
 
-	@RequestMapping("/getEventCount.htm")
+	@RequestMapping("/getEventsCountPage.htm")
+	public ModelAndView getEventsCountPage(HttpServletRequest request, HttpServletResponse response) {
+		return new ModelAndView("eventsCount");
+	}
+
+	@RequestMapping("/getEventsCount.htm")
 	public @ResponseBody
-	Map<Integer, Integer> getEventCount(
-			@RequestParam(value = "timeIntervalInMillis", required = true) long timeIntervalInMillis) {
-		Map<Integer, Integer> eventMap = new HashMap<Integer, Integer>();
+	Response getEventCount(@RequestParam(value = "timeInterval", required = true) int timeInterval) {
+		ArrayList<EventCount> eventCountList = new ArrayList<EventCount>();
+		Response response = new Response();
 		try {
-			eventMap = eventService.getEventCount(timeIntervalInMillis);
+			Map<Integer, Integer> eventMap = eventService.getEventCount(timeInterval * 60 * 60 * 1000);
+			for (Map.Entry<Integer, Integer> eventEntry : eventMap.entrySet()) {
+				EventCount eventCount = new EventCount();
+				eventCount.setType(eventEntry.getKey());
+				eventCount.setCount(eventEntry.getValue());
+				eventCountList.add(eventCount);
+			}
+			response.setCode(Response.SUCCESS);
+			response.setEventList(eventCountList);
 		} catch (Exception e) {
 			logger.error("error occured in addEvent", e);
+			response.setCode(Response.FAILURE);
+			response.setMessage(e.getMessage());
+			response.setEventList(new ArrayList<Event>());
 		}
-		return eventMap;
+		return response;
 	}
 }

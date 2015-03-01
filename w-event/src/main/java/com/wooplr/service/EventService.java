@@ -9,6 +9,7 @@ package com.wooplr.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.wooplr.commons.DataAccessException;
 import com.wooplr.persistence.entity.Event;
@@ -34,7 +35,12 @@ public interface EventService {
 	 */
 	List<Event> getRecentEvents(String lastEventId, int limit) throws DataAccessException;
 
-	List<Event> getTopEvents(String lastEventId, int limit, long timeIntervalInMillis) throws DataAccessException;
+	/**
+	 * @param timeIntervalInMillis
+	 * @return
+	 * @throws DataAccessException
+	 */
+	List<Entry<Integer, Integer>> getTopEvents(long timeIntervalInMillis) throws DataAccessException;
 
 	/**
 	 * @param timeIntervalInMillis

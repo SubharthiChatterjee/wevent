@@ -10,8 +10,6 @@ package com.wooplr.web;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import com.wooplr.persistence.entity.Event;
-
 /**
  * @author subharthi chatterjee
  * 
@@ -26,7 +24,7 @@ public class Response implements Serializable {
 	public static final int FAILURE = 0;
 	private String message;
 	private int code;
-	private ArrayList<Event> eventList;
+	private ArrayList eventList;
 	private String lastEventId;
 
 	/**
@@ -62,7 +60,7 @@ public class Response implements Serializable {
 	/**
 	 * @return the eventList
 	 */
-	public ArrayList<Event> getEventList() {
+	public ArrayList getEventList() {
 		return eventList;
 	}
 
@@ -70,7 +68,7 @@ public class Response implements Serializable {
 	 * @param eventList
 	 *            the eventList to set
 	 */
-	public void setEventList(ArrayList<Event> eventList) {
+	public void setEventList(ArrayList eventList) {
 		this.eventList = eventList;
 	}
 

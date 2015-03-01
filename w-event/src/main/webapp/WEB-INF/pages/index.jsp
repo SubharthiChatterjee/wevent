@@ -4,8 +4,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Insert title here</title>
-<script type="text/javascript"
-	src="<%=request.getContextPath()%>/scripts/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js"></script>
 <style>
 table td{
 	padding: 5%;
@@ -81,7 +81,7 @@ function eventClicked(event) {
 	
 	<br><a href="<%=request.getContextPath()%>/getRecentEventsPage.htm">Recent Events</a><br>
 	<br><a href="<%=request.getContextPath()%>/getTopEventsPage.htm">Top Events</a><br>
-	<br><a href="eventCount.htm">Event Count</a>
+	<br><a href="<%=request.getContextPath()%>/getEventsCountPage.htm">Events Count</a>
 
 </body>
 </html>

@@ -28,7 +28,7 @@ public interface EventDAO extends BaseMongoDAO<Event, String> {
 
 	List<Event> getEvent(String lastEventId, int limit) throws MongoException;
 
-	List<Event> getEvent(String lastEventId, int limit, Date greaterThanDate) throws MongoException;
+	Map<Integer, Integer> getTopEvents(Date greaterThanDate) throws MongoException;
 
 	Map<Integer, Integer> countEvents(Date greaterThanDate) throws MongoException;
 }

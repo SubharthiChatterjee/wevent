@@ -7,11 +7,14 @@
  */
 package com.wooplr.service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -30,8 +33,6 @@ public class EventServiceImpl implements EventService {
 
 	private static final Logger logger = Logger.getLogger(EventServiceImpl.class);
 	private EventDAO eventDAO;
-	private Map<Long, Map<Integer, Integer>> eventTimeIntervalCountMap = Collections
-			.synchronizedMap(new HashMap<Long, Map<Integer, Integer>>());
 
 	/*
 	 * (non-Javadoc)
@@ -57,21 +58,18 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public Map<Integer, Integer> getEventCount(long timeIntervalInMillis) throws DataAccessException {
 
-		if (eventTimeIntervalCountMap.isEmpty() || (eventTimeIntervalCountMap.get(timeIntervalInMillis) == null)) {
-			Map<Integer, Integer> eventCountMap = new HashMap<Integer, Integer>();
-			try {
-				eventCountMap = eventDAO.countEvents(new Date(new Date().getTime() - timeIntervalInMillis));
-			} catch (MongoException e) {
-				logger.error("Error occured in getEventCount for timeIntervalInMillis:" + timeIntervalInMillis, e);
-				throw new DataAccessException(e);
-			}
-			for (Map.Entry<Integer, Integer> eventCountMapEntry : eventCountMap.entrySet()) {
-				HashMap<Integer, Integer> eventTypeCountMap = new HashMap<Integer, Integer>();
-				eventTypeCountMap.put(eventCountMapEntry.getKey(), eventCountMapEntry.getValue());
-				eventTimeIntervalCountMap.put(timeIntervalInMillis, eventTypeCountMap);
-			}
+		Map<Integer, Integer> eventCountMap = new HashMap<Integer, Integer>();
+		try {
+			eventCountMap = eventDAO.countEvents(new Date(new Date().getTime() - timeIntervalInMillis));
+		} catch (MongoException e) {
+			logger.error("Error occured in getEventCount for timeIntervalInMillis:" + timeIntervalInMillis, e);
+			throw new DataAccessException(e);
 		}
-		return eventTimeIntervalCountMap.get(timeIntervalInMillis);
+		for (Map.Entry<Integer, Integer> eventCountMapEntry : eventCountMap.entrySet()) {
+			HashMap<Integer, Integer> eventTypeCountMap = new HashMap<Integer, Integer>();
+			eventTypeCountMap.put(eventCountMapEntry.getKey(), eventCountMapEntry.getValue());
+		}
+		return eventCountMap;
 	}
 
 	/*
@@ -118,13 +116,29 @@ public class EventServiceImpl implements EventService {
 	 * long)
 	 */
 	@Override
-	public List<Event> getTopEvents(String lastEventId, int limit, long timeIntervalInMillis)
-			throws DataAccessException {
+	public List<Entry<Integer, Integer>> getTopEvents(long timeIntervalInMillis) throws DataAccessException {
 		try {
-			return eventDAO.getEvent(lastEventId, limit, new Date(new Date().getTime() - timeIntervalInMillis));
+			Map<Integer, Integer> topEventMap = eventDAO.getTopEvents(new Date(new Date().getTime()
+					- timeIntervalInMillis));
+			return entriesSortedByValues(topEventMap);
+
 		} catch (MongoException e) {
-			logger.error("Error occured in getRecentEvents for lastEventId:" + lastEventId + " limit:" + limit, e);
+			logger.error("Error occured in getTopEvents for timeIntervalInMillis:" + timeIntervalInMillis, e);
 			throw new DataAccessException(e);
 		}
+	}
+
+	private static <K, V extends Comparable<? super V>> List<Entry<K, V>> entriesSortedByValues(Map<K, V> map) {
+
+		List<Entry<K, V>> sortedEntries = new ArrayList<Entry<K, V>>(map.entrySet());
+
+		Collections.sort(sortedEntries, new Comparator<Entry<K, V>>() {
+			@Override
+			public int compare(Entry<K, V> e1, Entry<K, V> e2) {
+				return e2.getValue().compareTo(e1.getValue());
+			}
+		});
+
+		return sortedEntries;
 	}
 }
