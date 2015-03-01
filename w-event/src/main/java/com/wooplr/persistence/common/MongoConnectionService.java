@@ -3,8 +3,7 @@ package com.wooplr.persistence.common;
 import org.apache.log4j.Logger;
 
 import com.mongodb.DB;
-import com.mongodb.MongoClient;
-import com.mongodb.ServerAddress;
+import com.mongodb.MongoURI;
 
 /**
  * @author subharthi chatterjee Creates mongo database connection - a thread
@@ -15,16 +14,10 @@ public class MongoConnectionService {
 	private Logger logger = Logger.getLogger(this.getClass());
 
 	// constants for mongo options
-	public final static String mongoServerUrl = "localhost:27017";
-
-	public final static String database = "wooplr";
 
 	private static MongoConnectionService service;
 
 	private static Object lock = new Object();
-
-	private MongoClient mongoClient;
-
 	private DB db;
 
 	private MongoConnectionService() {
@@ -35,8 +28,9 @@ public class MongoConnectionService {
 
 	private void initializeMongo() {
 		try {
-			mongoClient = new MongoClient(new ServerAddress("localhost:27017"));
-			db = mongoClient.getDB(database);
+
+			MongoURI mongoURI = new MongoURI(System.getenv("MONGOHQ_URL"));
+			db = mongoURI.connectDB();
 
 		} catch (Exception e) {
 			logger.error("Exception during mongo connection service initialization : ", e);
