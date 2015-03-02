@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bson.types.ObjectId;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -81,9 +83,10 @@ public class EventDAOImpl extends AbstractMongoDAO<Event, String> implements Eve
 
 		DBObject dbQuery = new BasicDBObject();
 		if ((lastEventId != null) && (lastEventId.trim().length() > 0)) {
-			dbQuery.put(ID, new BasicDBObject("$gt", lastEventId));
+			dbQuery.put(ID, new BasicDBObject("$gt", new ObjectId(lastEventId)));
 		}
-		DBCursor cursor = getDB().getCollection(COLLECTION_NAME).find(dbQuery).limit(limit);
+		DBCursor cursor = getDB().getCollection(COLLECTION_NAME).find(dbQuery).sort(new BasicDBObject(ID, -1))
+				.limit(limit);
 		List<Event> events = new ArrayList<>();
 
 		for (DBObject object : cursor) {

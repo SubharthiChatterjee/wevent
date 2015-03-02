@@ -44,16 +44,21 @@ function populateRecentEvents() {
 	if(recentEventsTable != undefined) {
 		recentEventsTable.fnDestroy();
 	}
-$('#recentEvent').dataTable(
+	recentEventsTable = $('#recentEvent').dataTable(
 		{
 			"bProcessing" : true,
+			"bPaginate":true,
 			"bFilter" : false,
 			"bRetrieve" : true,
 			"bLengthChange" : true,
 			"aPaginationLengths": [15,25,50,100],
 			"bServerSide" : true,
-			"iDisplayLength" : 15,
+			"bInfo":false,
+			"fnPageChange": true,
+			"iDisplayLength" : 10,
+			"sServerMethod" : "POST",
 			"sDom": '<"top"iflp<"clear">>rt<"bottom"if<"paginate_length"lp><"clear">>',
+			"pagingType": "simple_numbers",
 			"sPaginationType" : "full_numbers",
 			"sAjaxSource" : "getRecentEvents.htm?lastEventId="+lastEventId,
 			"sAjaxDataProp" : "eventList",
@@ -63,6 +68,7 @@ $('#recentEvent').dataTable(
 			 },				
 			"aoColumns" : [
 							{ "mDataProp": function(source, type, val) {
+								lastEventId = source.id;
 								return 'Event' + source.type;
 							}
 							},
@@ -91,6 +97,7 @@ $('#recentEvent').dataTable(
 						lastEventId = data.lastEventId;
 					}
 				});
+				
 
 			}
 		});
