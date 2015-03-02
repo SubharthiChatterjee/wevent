@@ -16,10 +16,12 @@ table td, table th{
 <body>
 <h1>Events Count</h1>
 		<table id="eventCount" width="40%" cellpadding="10" cellspacing="10">
+		  <thead>
 		  <tr>
 		    <th style="text-align: left;" width="160">Event Type</th>
 		    <th style="text-align: left;" width="160">Count</th>
 		  </tr>
+		  </thead>
 		</table>
 		<br><br>
 		<input id="timeInterval" type="radio" name="timeInterval" value="8" checked>Last 8 hours<br>
@@ -33,7 +35,7 @@ function populateEventsCount() {
 	if(eventsCountTable != undefined) {
 		eventsCountTable.fnDestroy();
 	}
-$('#eventCount').dataTable(
+	eventsCountTable = $('#eventCount').dataTable(
 		{
 			"bProcessing" : true,
 			"bFilter" : false,
@@ -52,7 +54,7 @@ $('#eventCount').dataTable(
 			      "sZeroRecords": "No events occured"
 			 },				
 			 "aoColumns" : [
-							{ "mDataProp": function(source, type, val) {
+							 { "mDataProp": function(source, type, val) {
 								return 'Event' + source.type;
 							}
 							},
@@ -61,7 +63,7 @@ $('#eventCount').dataTable(
 								"mDataProp" : function(source, type, val) {
 									return source.count;									
 								}
-							}
+							} 
 							
 					],
 			"fnServerData" : function(sSource, aoData, fnCallback) {
@@ -83,10 +85,11 @@ $('#eventCount').dataTable(
 
 $(document).ready(function(){
 	populateEventsCount();
+	$('input[name="timeInterval"]:radio').change(function () {
+		populateEventsCount();
+	});
 });
 
-$('input[name=timeInterval]:radio').change(function () {
-	populateEventsCount();
-});
+
 </script>
 </html>
