@@ -29,7 +29,7 @@ public class MongoConnectionService {
 	private void initializeMongo() {
 		try {
 
-			MongoURI mongoURI = new MongoURI("mongodb://sub123:sub123@ds049651.mongolab.com:49651/heroku_app34433735");
+			MongoURI mongoURI = new MongoURI("mongodb://sub123:sub123@ds049651.mongolab.com:49651/wooplr");
 			db = mongoURI.connectDB();
 
 		} catch (Exception e) {
