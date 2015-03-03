@@ -30,83 +30,71 @@
 						</tr>
 						
 					</thead>
-					<tbody>
-						
+					<tbody id="content">
 					</tbody>
 				</table>
+				<a onclick="loadPrevData()">Previous</a>&nbsp&nbsp
+				<a onclick="loadNextData()">Next</a>
 </body>
 <script>
 var lastEventId = '';
-
-
-var recentEventsTable;
-function populateRecentEvents() {
-	if(recentEventsTable != undefined) {
-		recentEventsTable.fnDestroy();
-	}
-	recentEventsTable = $('#recentEvent').dataTable(
-		{
-			"bProcessing" : true,
-			"bPaginate":true,
-			"bFilter" : false,
-			"bRetrieve" : true,
-			"bLengthChange" : true,
-			"aPaginationLengths": [15,25,50,100],
-			"bServerSide" : true,
-			"bInfo":false,
-			"fnPageChange": true,
-			"iDisplayLength" : 10,
-			"sServerMethod" : "POST",
-			"sDom": '<"top"iflp<"clear">>rt<"bottom"if<"paginate_length"lp><"clear">>',
-			"pagingType": "simple_numbers",
-			"sPaginationType" : "full_numbers",
-			"sAjaxSource" : "getRecentEvents.htm?lastEventId="+lastEventId,
-			"sAjaxDataProp" : "eventList",
-			 "oLanguage": {
-			      "sEmptyTable": "No events occured",
-			      "sZeroRecords": "No events occured"
-			 },				
-			"aoColumns" : [
-							{ "mDataProp": function(source, type, val) {
-								lastEventId = source.id;
-								return 'Event' + source.type;
-							}
-							},
-							{
-								"bSortable" : false,
-								"mDataProp" : function(source, type, val) {
-									return source.value1;									
-								}
-							},
-							{
-								"bSortable" : false,
-								"mDataProp" : function(source,type,val) {
-									return source.value2;
-								}
-							}
-					],
-			"fnServerData" : function(sSource, aoData, fnCallback) {
-				$.ajax({
-					"dataType" : 'json',
-					"type" : "POST",
-					"cache" : false,
-					"url" : sSource,
-					"data" : aoData,
-					"success" : function (data) {
-						fnCallback(data);
-						lastEventId = data.lastEventId;
-					}
+var firstEventId = '';
+var greaterThan = '$gt';
+var lessThan = '$lt';
+var index = 0;
+function loadNextData(){
+	$.ajax({
+		type : "POST",
+		cache : false,
+		url : "getRecentEvents.htm?",
+		data : "lastEventId="+lastEventId+"&limit="+10+"&compare="+lessThan,
+		datatType : 'json',
+		success : function (data) {
+			var eventList = data.eventList;
+			if(eventList.length>0){
+				var dataString = '';
+				eventList.forEach(function(event){
+					dataString = dataString+ '<tr><td>'+"Event"+event.type+'</td><td>'+event.value1+'</td><td>'+event.value2+'</td></tr>';
 				});
-				
-
+				$('#content').empty();
+				$('#content').append(dataString.toString());
+				lastEventId = data.lastEventId;
+				firstEventId = data.firstEventId;
+		}},
+		error : function(data) {
+			alert("Error occured code:"+data.code+" Message:"+data.message);
+		}
+		
+	});
+}
+function loadPrevData(){
+	$.ajax({
+		type : "POST",
+		cache : false,
+		url : "getRecentEvents.htm?",
+		data : "lastEventId="+firstEventId+"&limit="+10+"&compare="+greaterThan,
+		datatType : 'json',
+		success : function (data) {
+			var eventList = data.eventList;
+			if(eventList.length>0){
+				var dataString = '';
+				eventList.forEach(function(event){
+					dataString = dataString+ '<tr><td>'+"Event"+event.type+'</td><td>'+event.value1+'</td><td>'+event.value2+'</td></tr>';
+				});
+				$('#content').empty();
+				$('#content').append(dataString.toString());
+				lastEventId = data.lastEventId;
+				firstEventId = data.firstEventId;
 			}
-		});
-};
-
-
+		},
+		error : function(data) {
+			alert("Error occured code:"+data.code+" Message:"+data.message);
+		}
+	});
+}
 
 $(document).ready(function(){
-	populateRecentEvents();
+	loadNextData();
 });
 </script>
 </html>

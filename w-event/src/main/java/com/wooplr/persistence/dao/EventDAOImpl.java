@@ -1,6 +1,7 @@
 package com.wooplr.persistence.dao;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -72,18 +73,26 @@ public class EventDAOImpl extends AbstractMongoDAO<Event, String> implements Eve
 	 * @see com.wooplr.persistence.dao.EventDAO#getEvent(java.lang.String, int)
 	 */
 	@Override
-	public List<Event> getEvent(String lastEventId, int limit) throws MongoException {
+	public List<Event> getEvent(String lastEventId, int limit, String compare) throws MongoException {
 
 		DBObject dbQuery = new BasicDBObject();
+		DBObject sortQuery = new BasicDBObject();
 		if ((lastEventId != null) && (lastEventId.trim().length() > 0)) {
-			dbQuery.put(ID, new BasicDBObject("$gt", new ObjectId(lastEventId)));
+			dbQuery.put(ID, new BasicDBObject(compare, new ObjectId(lastEventId)));
 		}
-		DBCursor cursor = getDB().getCollection(COLLECTION_NAME).find(dbQuery).sort(new BasicDBObject(ID, -1))
-				.limit(limit);
+		if ("$gt".equals(compare)) {
+			sortQuery.put(ID, 1);
+		} else {
+			sortQuery.put(ID, -1);
+		}
+		DBCursor cursor = getDB().getCollection(COLLECTION_NAME).find(dbQuery).sort(sortQuery).limit(limit);
 		List<Event> events = new ArrayList<>();
 
 		for (DBObject object : cursor) {
 			events.add(map(object));
+		}
+		if ("$gt".equals(compare)) {
+			Collections.reverse(events);
 		}
 		return events;
 	}

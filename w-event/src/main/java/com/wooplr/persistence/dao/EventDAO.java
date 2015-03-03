@@ -19,7 +19,7 @@ public interface EventDAO extends BaseMongoDAO<Event, String> {
 	String VALUE1 = "value1";
 	String VALUE2 = "value2";
 
-	List<Event> getEvent(String lastEventId, int limit) throws MongoException;
+	List<Event> getEvent(String lastEventId, int limit, String compare) throws MongoException;
 
 	Map<Integer, Integer> getTopEvents(Date greaterThanDate) throws MongoException;
 

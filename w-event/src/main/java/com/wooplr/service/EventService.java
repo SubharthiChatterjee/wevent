@@ -26,7 +26,7 @@ public interface EventService {
 	 * @return
 	 * @throws DataAccessException
 	 */
-	List<Event> getRecentEvents(String lastEventId, int limit) throws DataAccessException;
+	List<Event> getRecentEvents(String lastEventId, int limit, String compare) throws DataAccessException;
 
 	/**
 	 * @param timeIntervalInMillis

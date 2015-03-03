@@ -19,6 +19,7 @@ public class Response implements Serializable {
 	private int code;
 	private ArrayList eventList;
 	private String lastEventId;
+	private String firstEventId;
 
 	/**
 	 * @return the message
@@ -78,5 +79,20 @@ public class Response implements Serializable {
 	 */
 	public void setLastEventId(String lastEventId) {
 		this.lastEventId = lastEventId;
+	}
+
+	/**
+	 * @return the firstEventId
+	 */
+	public String getFirstEventId() {
+		return firstEventId;
+	}
+
+	/**
+	 * @param firstEventId
+	 *            the firstEventId to set
+	 */
+	public void setFirstEventId(String firstEventId) {
+		this.firstEventId = firstEventId;
 	}
 }

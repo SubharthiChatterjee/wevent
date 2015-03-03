@@ -61,17 +61,21 @@ public class BaseController {
 	Response getRecentEventsPaginatedView(HttpServletRequest request, HttpServletResponse httpResponse) {
 		String lastEventId = null;
 		int limit = 0;
-		if ((request != null) && (request.getParameter("sEcho") != null) && (request.getParameter("sEcho") != "")) {
-			limit = Integer.parseInt(request.getParameter("limit"));
-			lastEventId = request.getParameter("lastEventId");
-		}
+		String compare = request.getParameter("compare");
+		limit = Integer.parseInt(request.getParameter("limit"));
+		lastEventId = request.getParameter("lastEventId");
 		Response response = new Response();
 		try {
-			ArrayList<Event> eventList = (ArrayList<Event>) eventService.getRecentEvents(lastEventId, limit);
+			ArrayList<Event> eventList = (ArrayList<Event>) eventService.getRecentEvents(lastEventId, limit, compare);
 			response.setEventList(eventList);
 			response.setCode(Response.SUCCESS);
-			Event event = eventList.get(eventList.size() - 1);
-			response.setLastEventId(event.getId());
+			if (!eventList.isEmpty()) {
+				Event event = eventList.get(eventList.size() - 1);
+				response.setLastEventId(event.getId());
+				response.setFirstEventId(eventList.get(0).getId());
+			} else {
+				response.setLastEventId(lastEventId);
+			}
 		} catch (Exception e) {
 			logger.error("error occured in addEvent", e);
 			response.setCode(Response.FAILURE);

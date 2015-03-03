@@ -34,9 +34,9 @@ public class EventServiceImpl implements EventService {
 	 * int)
 	 */
 	@Override
-	public List<Event> getRecentEvents(String lastEventId, int limit) throws DataAccessException {
+	public List<Event> getRecentEvents(String lastEventId, int limit, String compare) throws DataAccessException {
 		try {
-			return eventDAO.getEvent(lastEventId, limit);
+			return eventDAO.getEvent(lastEventId, limit, compare);
 		} catch (MongoException e) {
 			logger.error("Error occured in getRecentEvents for lastEventId:" + lastEventId + " limit:" + limit, e);
 			throw new DataAccessException(e);
