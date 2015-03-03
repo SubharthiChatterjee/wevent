@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2011 by InfoArmy Inc.  All Rights Reserved.
- * This file contains proprietary information of InfoArmy Inc.
- * Copying, use, reverse engineering, modification or reproduction of
- * this file without prior written approval is prohibited.
- *
- */
 package com.wooplr.web;
 
 import java.util.ArrayList;
@@ -69,7 +62,7 @@ public class BaseController {
 		String lastEventId = null;
 		int limit = 0;
 		if ((request != null) && (request.getParameter("sEcho") != null) && (request.getParameter("sEcho") != "")) {
-			limit = Integer.parseInt(request.getParameter("iDisplayLength"));
+			limit = Integer.parseInt(request.getParameter("limit"));
 			lastEventId = request.getParameter("lastEventId");
 		}
 		Response response = new Response();
