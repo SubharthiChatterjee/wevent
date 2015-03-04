@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -131,21 +132,35 @@ public class EventDAOImpl extends AbstractMongoDAO<Event, String> implements Eve
 	 * java.util.Date)
 	 */
 	@Override
-	public Map<Integer, Integer> getTopEvents(Date greaterThanDate) throws MongoException {
+	public List<Map.Entry<Integer, List<Integer>>> getTopEvents(Date greaterThanDate) throws MongoException {
 		DBObject queryObj = new BasicDBObject(CREATE_DATE, new BasicDBObject("$gt", greaterThanDate));
 		DBObject projObj = new BasicDBObject(TYPE, 1);
 
 		DBCursor cursor = getDB().getCollection(COLLECTION_NAME).find(queryObj, projObj);
 		Map<Integer, Integer> events = new HashMap<Integer, Integer>();
+		HashMap<Integer, List<Integer>> eventsTrackMap = new LinkedHashMap<Integer, List<Integer>>();
+
 		for (DBObject object : cursor) {
 			int type = (Integer) object.get(TYPE);
 			Integer typeCount = events.get(type);
 			if (typeCount == null) {
 				events.put(type, 1);
+				List<Integer> typeList = eventsTrackMap.get(1);
+				if (typeList == null) {
+					typeList = new ArrayList<Integer>();
+				}
+				typeList.add(type);
+				eventsTrackMap.put(1, typeList);
 				continue;
 			}
 			events.put(type, ++typeCount);
+			List<Integer> typeList = eventsTrackMap.get(typeCount);
+			if (typeList == null) {
+				typeList = new ArrayList<Integer>();
+			}
+			typeList.add(type);
+			eventsTrackMap.put(typeCount, typeList);
 		}
-		return events;
+		return new ArrayList<Map.Entry<Integer, List<Integer>>>(eventsTrackMap.entrySet());
 	}
 }

@@ -1,19 +1,17 @@
 package com.wooplr.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.mongodb.MongoException;
 import com.wooplr.commons.DataAccessException;
+import com.wooplr.commons.EventType;
 import com.wooplr.persistence.dao.EventDAO;
 import com.wooplr.persistence.entity.Event;
 
@@ -109,29 +107,32 @@ public class EventServiceImpl implements EventService {
 	 * long)
 	 */
 	@Override
-	public List<Entry<Integer, Integer>> getTopEvents(long timeIntervalInMillis) throws DataAccessException {
+	public List<Integer> getTopEvents(long timeIntervalInMillis) throws DataAccessException {
 		try {
-			Map<Integer, Integer> topEventMap = eventDAO.getTopEvents(new Date(new Date().getTime()
+			List<Map.Entry<Integer, List<Integer>>> topEventList = eventDAO.getTopEvents(new Date(new Date().getTime()
 					- timeIntervalInMillis));
-			return entriesSortedByValues(topEventMap);
+
+			List<Integer> eventTypeList = new ArrayList<Integer>(EventType.EVENT_TYPES);
+			List<Integer> topEventsList = new ArrayList<Integer>();
+
+			for (int i = topEventList.size() - 1; i >= 0; i--) {
+				List<Integer> values = topEventList.get(i).getValue();
+				boolean removed = eventTypeList.removeAll(values);
+
+				if (removed) {
+					values.removeAll(topEventsList);
+					topEventsList.addAll(values);
+				}
+
+				if (eventTypeList.isEmpty()) {
+					break;
+				}
+			}
+			return topEventsList;
 
 		} catch (MongoException e) {
 			logger.error("Error occured in getTopEvents for timeIntervalInMillis:" + timeIntervalInMillis, e);
 			throw new DataAccessException(e);
 		}
-	}
-
-	private static <K, V extends Comparable<? super V>> List<Entry<K, V>> entriesSortedByValues(Map<K, V> map) {
-
-		List<Entry<K, V>> sortedEntries = new ArrayList<Entry<K, V>>(map.entrySet());
-
-		Collections.sort(sortedEntries, new Comparator<Entry<K, V>>() {
-			@Override
-			public int compare(Entry<K, V> e1, Entry<K, V> e2) {
-				return e2.getValue().compareTo(e1.getValue());
-			}
-		});
-
-		return sortedEntries;
 	}
 }

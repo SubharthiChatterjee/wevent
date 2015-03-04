@@ -3,7 +3,6 @@ package com.wooplr.web;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -101,12 +100,12 @@ public class BaseController {
 
 		Response response = new Response();
 		try {
-			List<Entry<Integer, Integer>> topEventEntryList = eventService.getTopEvents(timeIntervalInMillis);
+			List<Integer> topEventEntryList = eventService.getTopEvents(timeIntervalInMillis);
 			ArrayList<EventCount> eventList = new ArrayList<EventCount>();
 
-			for (Map.Entry<Integer, Integer> topEventMapEntry : topEventEntryList) {
+			for (Integer topEventType : topEventEntryList) {
 				EventCount eventCount = new EventCount();
-				eventCount.setType(topEventMapEntry.getKey());
+				eventCount.setType(topEventType);
 				eventList.add(eventCount);
 			}
 			response.setEventList(eventList);
