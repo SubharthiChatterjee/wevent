@@ -2,7 +2,6 @@ package com.wooplr.web;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -92,23 +91,15 @@ public class BaseController {
 	@RequestMapping("/getTopEvents.htm")
 	public @ResponseBody
 	Response getTopEvents(HttpServletRequest request, HttpServletResponse httpResponse) {
-		long timeIntervalInMillis = 0;
+		int timeInterval = 0;
 		if ((request != null) && (request.getParameter("sEcho") != null) && (request.getParameter("sEcho") != "")) {
-			int timeInterval = Integer.parseInt(request.getParameter("timeInterval"));
-			timeIntervalInMillis = timeInterval * 60 * 60 * 1000;
+			timeInterval = Integer.parseInt(request.getParameter("timeInterval"));
 		}
 
 		Response response = new Response();
 		try {
-			List<Integer> topEventEntryList = eventService.getTopEvents(timeIntervalInMillis);
-			ArrayList<EventCount> eventList = new ArrayList<EventCount>();
-
-			for (Integer topEventType : topEventEntryList) {
-				EventCount eventCount = new EventCount();
-				eventCount.setType(topEventType);
-				eventList.add(eventCount);
-			}
-			response.setEventList(eventList);
+			List<com.wooplr.persistence.entity.EventCount> topEventEntryList = eventService.getTopEvents(timeInterval);
+			response.setEventList((ArrayList<com.wooplr.persistence.entity.EventCount>) topEventEntryList);
 			response.setCode(Response.SUCCESS);
 		} catch (Exception e) {
 			logger.error("error occured in addEvent", e);
@@ -127,18 +118,12 @@ public class BaseController {
 	@RequestMapping("/getEventsCount.htm")
 	public @ResponseBody
 	Response getEventCount(@RequestParam(value = "timeInterval", required = true) int timeInterval) {
-		ArrayList<EventCount> eventCountList = new ArrayList<EventCount>();
 		Response response = new Response();
 		try {
-			Map<Integer, Integer> eventMap = eventService.getEventCount(timeInterval * 60 * 60 * 1000);
-			for (Map.Entry<Integer, Integer> eventEntry : eventMap.entrySet()) {
-				EventCount eventCount = new EventCount();
-				eventCount.setType(eventEntry.getKey());
-				eventCount.setCount(eventEntry.getValue());
-				eventCountList.add(eventCount);
-			}
+			List<com.wooplr.persistence.entity.EventCount> eventCounts = eventService.getEventCount(timeInterval);
+
 			response.setCode(Response.SUCCESS);
-			response.setEventList(eventCountList);
+			response.setEventList((ArrayList<com.wooplr.persistence.entity.EventCount>) eventCounts);
 		} catch (Exception e) {
 			logger.error("error occured in addEvent", e);
 			response.setCode(Response.FAILURE);

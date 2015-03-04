@@ -51,8 +51,10 @@
 	</bean>
 	
 	<bean id="eventDAO" class="com.wooplr.persistence.dao.EventDAOImpl"/>
+	<bean id="eventCountDAO" class="com.wooplr.persistence.dao.EventCountDAOImpl"/>
 
 	<bean id="eventService" class="com.wooplr.service.EventServiceImpl">
 	    <property name="eventDAO" ref="eventDAO"/>
+	    <property name="eventCountDAO" ref="eventCountDAO"/>
 	</bean>
 </beans>

@@ -132,6 +132,7 @@ public class EventDAOImpl extends AbstractMongoDAO<Event, String> implements Eve
 	 * java.util.Date)
 	 */
 	@Override
+	@Deprecated
 	public List<Map.Entry<Integer, List<Integer>>> getTopEvents(Date greaterThanDate) throws MongoException {
 		DBObject queryObj = new BasicDBObject(CREATE_DATE, new BasicDBObject("$gt", greaterThanDate));
 		DBObject projObj = new BasicDBObject(TYPE, 1);
@@ -162,5 +163,16 @@ public class EventDAOImpl extends AbstractMongoDAO<Event, String> implements Eve
 			eventsTrackMap.put(typeCount, typeList);
 		}
 		return new ArrayList<Map.Entry<Integer, List<Integer>>>(eventsTrackMap.entrySet());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wooplr.persistence.common.BaseMongoDAO#upsert(java.util.List)
+	 */
+	@Override
+	public List<Event> upsert(List<Event> entity) throws MongoException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

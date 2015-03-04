@@ -1,10 +1,10 @@
 package com.wooplr.service;
 
 import java.util.List;
-import java.util.Map;
 
 import com.wooplr.commons.DataAccessException;
 import com.wooplr.persistence.entity.Event;
+import com.wooplr.persistence.entity.EventCount;
 
 /**
  * @author subharthi chatterjee
@@ -28,15 +28,16 @@ public interface EventService {
 	List<Event> getRecentEvents(String lastEventId, int limit, String compare) throws DataAccessException;
 
 	/**
-	 * @param timeIntervalInMillis
+	 * @param timeInterval
 	 * @return
 	 * @throws DataAccessException
 	 */
-	List<Integer> getTopEvents(long timeIntervalInMillis) throws DataAccessException;
+	List<EventCount> getTopEvents(int timeInterval) throws DataAccessException;
 
 	/**
-	 * @param timeIntervalInMillis
+	 * @param timeInterVal
 	 * @return
+	 * @throws DataAccessException
 	 */
-	Map<Integer, Integer> getEventCount(long timeIntervalInMillis) throws DataAccessException;
+	List<EventCount> getEventCount(int timeInterVal) throws DataAccessException;
 }

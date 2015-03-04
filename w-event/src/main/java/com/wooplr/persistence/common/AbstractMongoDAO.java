@@ -53,5 +53,4 @@ public abstract class AbstractMongoDAO<T extends MongoEntity<I>, I extends Seria
 		getDB().getCollection(getCollectionName()).insert(map(entity));
 		return entity;
 	}
-
 }
