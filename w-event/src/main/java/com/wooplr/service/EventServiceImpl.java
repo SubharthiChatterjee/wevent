@@ -1,13 +1,9 @@
 package com.wooplr.service;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.mongodb.MongoException;
@@ -27,6 +23,7 @@ public class EventServiceImpl implements EventService {
 	private static final Logger logger = Logger.getLogger(EventServiceImpl.class);
 	private EventDAO eventDAO;
 	private EventCountDAO eventCountDAO;
+	private EventAsyncServiceImpl eventAsyncService;
 
 	/*
 	 * (non-Javadoc)
@@ -40,34 +37,6 @@ public class EventServiceImpl implements EventService {
 			return eventDAO.getEvent(lastEventId, limit, compare);
 		} catch (MongoException e) {
 			logger.error("Error occured in getRecentEvents for lastEventId:" + lastEventId + " limit:" + limit, e);
-			throw new DataAccessException(e);
-		}
-	}
-
-	@Async
-	private void storeEventCount(long timeIntervalInMillis) throws DataAccessException {
-
-		Map<Integer, Integer> eventCountMap = new HashMap<Integer, Integer>();
-		try {
-			eventCountMap = eventDAO.countEvents(new Date(new Date().getTime() - timeIntervalInMillis));
-		} catch (MongoException e) {
-			logger.error("Error occured in getEventCount for timeIntervalInMillis:" + timeIntervalInMillis, e);
-			throw new DataAccessException(e);
-		}
-		List<EventCount> eventCountList = new ArrayList<EventCount>();
-		for (Map.Entry<Integer, Integer> eventCountMapEntry : eventCountMap.entrySet()) {
-			EventCount eventCount = new EventCount();
-			eventCount.setType(eventCountMapEntry.getKey());
-			eventCount.setCount(eventCountMapEntry.getValue());
-			eventCount.setTimeIntervalInHours(((Long) (timeIntervalInMillis / (60 * 60 * 1000))).intValue());
-			eventCount.setCreateDate(new Date());
-
-			eventCountList.add(eventCount);
-		}
-		try {
-			eventCountDAO.upsert(eventCountList);
-		} catch (MongoException e) {
-			logger.error("Error occured in update for eventCountList:" + eventCountList, e);
 			throw new DataAccessException(e);
 		}
 	}
@@ -89,12 +58,12 @@ public class EventServiceImpl implements EventService {
 			event.setCreateDate(new Date());
 			event = eventDAO.insert(event);
 
-			/* call for 8 hours converted to timeInMillis */
-			storeEventCount(8 * 60 * 60 * 1000);
-			/* call for 24 hours converted to timeInMillis */
-			storeEventCount(24 * 60 * 60 * 1000);
-			/* call for 7 days converted to timeInMillis */
-			storeEventCount(7 * 24 * 60 * 60 * 1000);
+			/* call for 8 hours */
+			eventAsyncService.updateEventCount(eventType, 8);
+			/* call for 24 hours */
+			eventAsyncService.updateEventCount(eventType, 24);
+			/* call for 7 days */
+			eventAsyncService.updateEventCount(eventType, 168);
 			return event;
 		} catch (MongoException e) {
 			logger.error("Error occured in addEvent for event:" + event);
@@ -153,5 +122,13 @@ public class EventServiceImpl implements EventService {
 			logger.error("Error occured in getTopEvents for timeInterval:" + timeInterVal, e);
 			throw new DataAccessException(e);
 		}
+	}
+
+	/**
+	 * @param eventAsyncService
+	 *            the eventAsyncService to set
+	 */
+	public void setEventAsyncService(EventAsyncServiceImpl eventAsyncService) {
+		this.eventAsyncService = eventAsyncService;
 	}
 }

@@ -54,6 +54,9 @@ public class EventCountDAOImpl extends AbstractMongoDAO<EventCount, String> impl
 	 */
 	@Override
 	protected EventCount map(DBObject dbObject) {
+		if (dbObject == null) {
+			return null;
+		}
 		EventCount eventCount = new EventCount();
 		eventCount.setId(dbObject.get(ID).toString());
 		eventCount.setCount((Integer) dbObject.get(COUNT));
@@ -115,5 +118,32 @@ public class EventCountDAOImpl extends AbstractMongoDAO<EventCount, String> impl
 			getDB().getCollection(getCollectionName()).update(queryObj, setObject, true, false);
 		}
 		return entities;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wooplr.persistence.dao.EventCountDAO#getEventCount(int, int)
+	 */
+	@Override
+	public EventCount getEventCount(int eventType, int timeIntervalInHours) throws MongoException {
+
+		DBObject queryObj = new BasicDBObject(ID, eventType + "_" + timeIntervalInHours);
+		DBObject dbObject = getDB().getCollection(getCollectionName()).findOne(queryObj);
+
+		return map(dbObject);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.wooplr.persistence.dao.EventCountDAO#updateEventCount(java.lang.String
+	 * , int)
+	 */
+	@Override
+	public void updateEventCount(String id, int count) throws MongoException {
+		getDB().getCollection(getCollectionName()).update(new BasicDBObject(ID, id),
+				new BasicDBObject("$set", new BasicDBObject(COUNT, count)));
 	}
 }

@@ -2,6 +2,7 @@ package com.wooplr.persistence.dao;
 
 import java.util.List;
 
+import com.mongodb.MongoException;
 import com.wooplr.persistence.common.BaseMongoDAO;
 import com.wooplr.persistence.entity.EventCount;
 
@@ -16,8 +17,12 @@ public interface EventCountDAO extends BaseMongoDAO<EventCount, String> {
 	String COUNT = "count";
 	String TIME_INTERVAL_IN_HOURS = "time_interval_in_hours";
 
-	List<EventCount> getEventCount(int timeIntervalInHours);
+	List<EventCount> getEventCount(int timeIntervalInHours) throws MongoException;
 
-	List<EventCount> getTopEvents(int timeIntervalInHours);
+	EventCount getEventCount(int eventType, int timeIntervalInHours) throws MongoException;
+
+	List<EventCount> getTopEvents(int timeIntervalInHours) throws MongoException;
+
+	public void updateEventCount(String id, int count) throws MongoException;
 
 }
