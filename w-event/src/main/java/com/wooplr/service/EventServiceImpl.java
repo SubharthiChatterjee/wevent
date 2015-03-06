@@ -1,5 +1,6 @@
 package com.wooplr.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -8,10 +9,13 @@ import org.springframework.stereotype.Service;
 
 import com.mongodb.MongoException;
 import com.wooplr.commons.DataAccessException;
+import com.wooplr.commons.EventTimeInterval;
 import com.wooplr.persistence.dao.EventCountDAO;
 import com.wooplr.persistence.dao.EventDAO;
+import com.wooplr.persistence.dao.EventLogDAO;
 import com.wooplr.persistence.entity.Event;
 import com.wooplr.persistence.entity.EventCount;
+import com.wooplr.persistence.entity.EventLog;
 
 /**
  * @author subharthi chatterjee
@@ -24,6 +28,7 @@ public class EventServiceImpl implements EventService {
 	private EventDAO eventDAO;
 	private EventCountDAO eventCountDAO;
 	private EventAsyncServiceImpl eventAsyncService;
+	private EventLogDAO eventLogDAO;
 
 	/*
 	 * (non-Javadoc)
@@ -58,12 +63,19 @@ public class EventServiceImpl implements EventService {
 			event.setCreateDate(new Date());
 			event = eventDAO.insert(event);
 
-			/* call for 8 hours */
-			eventAsyncService.updateEventCount(eventType, 8);
-			/* call for 24 hours */
-			eventAsyncService.updateEventCount(eventType, 24);
-			/* call for 7 days */
-			eventAsyncService.updateEventCount(eventType, 168);
+			List<EventLog> eventLogs = new ArrayList<EventLog>();
+			for (int timeInterval : EventTimeInterval.getTimeIntervalsInHours()) {
+				EventLog eventLog = new EventLog();
+				eventLog.setCreateDate(event.getCreateDate());
+				eventLog.setEventId(event.getId());
+				eventLog.setTimeInterval(timeInterval);
+				eventLogs.add(eventLog);
+			}
+			eventLogDAO.insert(eventLogs);
+
+			for (int timeInterval : EventTimeInterval.getTimeIntervalsInHours()) {
+				eventAsyncService.updateEventCount(eventType, timeInterval);
+			}
 			return event;
 		} catch (MongoException e) {
 			logger.error("Error occured in addEvent for event:" + event);
@@ -130,5 +142,13 @@ public class EventServiceImpl implements EventService {
 	 */
 	public void setEventAsyncService(EventAsyncServiceImpl eventAsyncService) {
 		this.eventAsyncService = eventAsyncService;
+	}
+
+	/**
+	 * @param eventLogDAO
+	 *            the eventLogDAO to set
+	 */
+	public void setEventLogDAO(EventLogDAO eventLogDAO) {
+		this.eventLogDAO = eventLogDAO;
 	}
 }

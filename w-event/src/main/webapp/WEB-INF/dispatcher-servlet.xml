@@ -52,15 +52,18 @@
 	
 	<bean id="eventDAO" class="com.wooplr.persistence.dao.EventDAOImpl"/>
 	<bean id="eventCountDAO" class="com.wooplr.persistence.dao.EventCountDAOImpl"/>
+	<bean id="eventLogDAO" class="com.wooplr.persistence.dao.EventLogDAOImpl"/>
 
 	<bean id="eventService" class="com.wooplr.service.EventServiceImpl">
 	    <property name="eventDAO" ref="eventDAO"/>
 	    <property name="eventCountDAO" ref="eventCountDAO"/>
 	    <property name="eventAsyncService" ref="eventAsyncService"/>
+	    <property name="eventLogDAO" ref="eventLogDAO"/>
 	</bean>
 	
 	<bean id="eventAsyncService" class="com.wooplr.service.EventAsyncServiceImpl">
 	    <property name="eventDAO" ref="eventDAO"/>
 	    <property name="eventCountDAO" ref="eventCountDAO"/>
+	    <property name="eventLogDAO" ref="eventLogDAO"/>
 	</bean>
 </beans>

@@ -1,6 +1,8 @@
 package com.wooplr.persistence.common;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -8,6 +10,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBObject;
 import com.mongodb.MongoException;
+import com.mongodb.WriteConcern;
 
 /**
  * @author subharthi chatterjee
@@ -50,7 +53,23 @@ public abstract class AbstractMongoDAO<T extends MongoEntity<I>, I extends Seria
 	 */
 	@Override
 	public T insert(T entity) throws MongoException {
-		getDB().getCollection(getCollectionName()).insert(map(entity));
-		return entity;
+		DBObject dbObject = map(entity);
+		getDB().getCollection(getCollectionName()).insert(dbObject);
+		return map(dbObject);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.wooplr.persistence.common.BaseMongoDAO#insert(java.util.List)
+	 */
+	@Override
+	public List<T> insert(List<T> entities) throws MongoException {
+		List<DBObject> dbObjects = new ArrayList<DBObject>();
+		for (T entity : entities) {
+			dbObjects.add(map(entity));
+		}
+		getDB().getCollection(getCollectionName()).insert(dbObjects, WriteConcern.SAFE.continueOnError(true));
+		return entities;
 	}
 }

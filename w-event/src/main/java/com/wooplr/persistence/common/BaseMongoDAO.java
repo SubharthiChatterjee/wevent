@@ -20,4 +20,6 @@ public interface BaseMongoDAO<E extends MongoEntity<T>, T extends Serializable> 
 	E insert(E entity) throws MongoException;
 
 	List<E> upsert(List<E> entity) throws MongoException;
+
+	List<E> insert(List<E> entity) throws MongoException;
 }
